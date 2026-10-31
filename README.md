@@ -1,6 +1,6 @@
 # ITI Companion
 
-<img src="app/assets/icon.png" alt="ITI Companion app icon" width="96" align="right" />
+<img src="assets/icon.png" alt="ITI Companion app icon" width="96" align="right" />
 
 **An unofficial Android companion for ITI applicants.** It unblocks the desktop-only
 admission portal, makes it readable on a phone, and adds a native dashboard with your current
@@ -144,15 +144,11 @@ A deeper map — every file, every injected CSS section and what is safe to edit
 │   ├── tools/                Visual QA server + DOM mocks + HAR shape helper
 │   ├── app.json              App identity, permissions, plugins
 │   └── eas.json              APK / AAB build profiles
-├── docs/
-│   ├── PROJECT_MAP.md        File map + CSS selector map + safe-edit rules
-│   ├── BUILD_AND_MAINTAIN.md APK builds, releases, stores, future work, troubleshooting
-│   ├── PRIVACY.md            Store-ready privacy policy template
-│   └── screenshots/          Phone-width captures used above
-├── Final_icon@1x.png         Source artwork for the app icon
-├── feedback/                 Original HARs and research captures (no response bodies)
-├── PLAN.md                   Architecture notes and decision log
-└── LICENSE                   GNU GPL v3
+│   ├── docs/
+│       ├── PROJECT_MAP.md        File map + CSS selector map + safe-edit rules
+│       ├── PRIVACY.md            Store-ready privacy policy template
+│       └── screenshots/          Phone-width captures used above
+│   └── LICENSE                   GNU GPL v3
 ```
 
 ---
@@ -181,8 +177,8 @@ built and maintained by one person in their own time and will stay that way.
 If it saved you time, you can buy me a coffee — entirely optional, and it never unlocks
 anything:
 
-- Ko-fi: [![Support me on Ko-fi](https://github.com/Y0ung-Phara0h/Y0ung-Phara0h/blob/main/Support_me_1.gif?raw=true)](https://ko-fi.com/F6P229ORJB)
-- InstaPay: [![Support me on InstaPay](https://upload.wikimedia.org/wikipedia/commons/2/20/InstaPay_Logo.png)](https://ipn.eg/S/y0ung-phara0h/instapay/7AGv6e)
+- Ko-fi: <a href="https://ko-fi.com/F6P229ORJB" target="_blank"><img width="32%" alt="Donate with Ko-fi" src="https://github.com/Y0ung-Phara0h/Y0ung-Phara0h/blob/main/Support_me_1.gif?raw=true"/></a>
+- InstaPay: <a href="https://ipn.eg/S/y0ung-phara0h/instapay/7AGv6e" target="_blank"><img width="32%" alt="Donate with InstaPay" src="assets/instapay_animated.gif?raw=true"/></a>
 
 ---
 
