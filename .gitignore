@@ -9,6 +9,9 @@ dist/
 web-build/
 expo-env.d.ts
 
+.claude
+AGENTS.md
+
 # Native
 .kotlin/
 *.orig.*
@@ -32,6 +35,10 @@ yarn-error.*
 
 # local env files
 .env*.local
+
+# local debugging captures (may contain session data)
+*.har
+api-shape.json
 
 # typescript
 *.tsbuildinfo

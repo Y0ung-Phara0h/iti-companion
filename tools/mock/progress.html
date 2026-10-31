@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en" class="iti-app" data-iti-page="internal">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Progress mock — ITI mobile QA</title>
+    <link rel="stylesheet" href="https://internal.iti.gov.eg/styles.5aa450d822e327a7.css" />
+    <style>
+      /* Component styles copied from the Angular bundles. Scoped styles in the
+         real app; unscoped here so the mock renders like the live page. */
+      .application-progress { display: grid; grid-template-columns: repeat(12, minmax(min-content, 1fr)); gap: 2.4rem; }
+      .application-progress__info-section { grid-column-end: span 9; background-color: #f8f9fa; min-height: 70vh; padding: 2.4rem; border-radius: 1rem; }
+      .application-progress__applicant-action-batchs-section { grid-column-end: span 3; display: flex; flex-direction: column; gap: 2.4rem; }
+
+      .applicant-action-batch-details { display: grid; grid-template-columns: repeat(12, minmax(min-content, 1fr)); gap: 2.4rem; }
+      .applicant-action-batch-details__title { grid-column-end: span 12; display: flex; flex-direction: row; align-items: center; justify-content: space-between; }
+      .applicant-action-batch-details__action-batch-right-section { display: flex; flex-direction: row; gap: .8rem; }
+      .applicant-action-batch-details__action-batch-note { grid-column-end: span 12; border-radius: .8rem; font-family: Roboto, sans-serif; font-size: 1.2rem; line-height: 1.8rem; font-weight: 200; padding-bottom: .8rem; }
+      .applicant-action-batch-details__action-batch-step { grid-column-end: span 6; }
+      .applicant-action-batch-details__dress-code { grid-column-end: span 6; }
+      .applicant-action-batch-details__actions { grid-column-end: span 12; }
+
+      .applicant-action-batch-list { border-radius: 1rem; display: flex; flex-direction: column; gap: 2.4rem; }
+      .applicant-action-batch-item { background-color: #fff; padding: 1.2rem; border-radius: 1rem; cursor: pointer; display: flex; flex-direction: row; justify-content: space-between; }
+      .applicant-action-batch-item.active { cursor: default; }
+
+      .action-batch-step-item { display: flex; flex-direction: column; gap: 1.2rem; padding: 2.4rem; background-color: #1f1f2d; border-radius: 1rem; height: 100%; }
+      .action-batch-step-item__header { color: #d9d9d9; display: flex; flex-direction: row; align-items: center; justify-content: space-between; }
+      .action-batch-step-item__data { display: grid; grid-template-columns: repeat(12, minmax(min-content, 1fr)); gap: 1.2rem; color: #d9d9d9; height: 100%; }
+      .action-batch-step-item__description { grid-column-end: span 7; font-family: Roboto, sans-serif; font-size: 1.2rem; line-height: 1.8rem; font-weight: 200; }
+      .action-batch-step-item__image-section { grid-column-end: span 5; height: 100%; }
+      .action-batch-step-item__image { background-size: contain; background-position: center; background-repeat: no-repeat; width: 100%; height: 100%; }
+
+      .action-step-item { display: flex; flex-direction: column; gap: 1.2rem; padding: 2.4rem; background-color: #1f1f2d; border-radius: 1rem; height: 100%; }
+      .action-step-item__header { color: #d9d9d9; display: flex; flex-direction: row; align-items: center; justify-content: space-between; }
+      .action-step-item__data { display: grid; grid-template-columns: repeat(12, minmax(min-content, 1fr)); gap: 1.2rem; color: #d9d9d9; }
+      .action-step-item__description { grid-column-end: span 8; font-family: Roboto, sans-serif; font-size: 1.2rem; line-height: 1.8rem; font-weight: 200; }
+      .action-step-item__image-section { grid-column-end: span 4; }
+      .action-step-item__image { background-size: contain; background-position: center; background-repeat: no-repeat; width: 100%; height: 10rem; }
+
+      .dress-code { display: grid; grid-template-columns: repeat(12, minmax(min-content, 1fr)); height: 100%; }
+      .dress-code__image { grid-column-end: span 4; background-size: contain; background-position: center; background-repeat: no-repeat; height: 100%; width: 100%; }
+      .dress-code__info { grid-column-end: span 8; display: flex; flex-direction: column; gap: 1.2rem; }
+      .dress-code__description { border-radius: 1rem; background-color: #971e22; padding: 1.2rem; color: #d9d9d9; line-height: 2.5rem; height: 100%; }
+      .dress-code__dress { display: flex; flex-direction: column; gap: 1.2rem; border-radius: 1rem; background-color: #004c78; padding: 1.2rem; color: #d9d9d9; }
+      .dress-code__tops, .dress-code__bottoms { display: flex; flex-direction: row; gap: 1.2rem; flex-wrap: wrap; }
+
+      .applicant-action-batch-action-item { background-color: #fff; padding: 2.4rem; border-radius: 1rem; display: flex; flex-direction: column; gap: 2.4rem; }
+      .applicant-action-batch-action-item__title { display: flex; flex-direction: row; align-items: center; justify-content: space-between; }
+      .applicant-action-batch-action-item__info { display: grid; grid-template-columns: repeat(12, minmax(min-content, 1fr)); gap: 2.4rem; }
+      .applicant-action-batch-action-item__action-step { grid-column-end: span 5; }
+      .applicant-action-batch-action-item__action { grid-column-end: span 7; display: flex; flex-direction: column; gap: 2.4rem; }
+      .applicant-action-batch-action-item__attandance { padding: 2.4rem; background-color: #1f1f2d; border-radius: 1rem; height: 100%; }
+      .applicant-action-batch-action-item__attandance-title { color: #fff; }
+      .applicant-action-batch-action-item__attandance-status { padding: .4rem .8rem; border-radius: .8rem; }
+      .applicant-action-batch-action-item__session-body { padding: 1.2rem; border-radius: .8rem; margin-top: .8rem; }
+
+      .applicant-action-batch-action-list__tab { display: flex; flex-direction: row; align-items: center; gap: 1.2rem; padding: 1.2rem; margin-right: 2.4rem; cursor: pointer; }
+      .applicant-action-batch-action-list__tab.active { background-color: #fff; border-radius: 1rem; }
+
+      .tabs { width: 100%; }
+      .tabs__header { display: flex; flex-direction: row; gap: .4rem; align-items: center; }
+      .tabs__container { display: flex; flex-direction: row; align-items: center; flex-grow: 1; }
+      .tabs__tab { font-family: Roboto, sans-serif; font-size: 1.5rem; line-height: 1.875rem; font-weight: 500; text-transform: capitalize; position: relative; z-index: 1; padding: .4rem; cursor: pointer; }
+      .tabs__content { position: relative; top: -.2rem; padding: .8rem 0; }
+
+      .badge { width: 100%; }
+      .badge__text { display: flex; flex-direction: row; justify-content: center; align-items: center; padding: 0 .8rem; }
+
+      .admin-layout { display: flex; flex-direction: row; }
+      .admin-layout__side-menu { display: flex; flex-direction: column; position: fixed; background-color: #1f1f2d; color: #bfbfd3; height: 100vh; width: 24rem; z-index: 2000; }
+      .admin-layout__container { display: flex; flex-direction: column; position: relative; flex-grow: 1; margin-left: 24rem; }
+      .admin-layout__header { position: fixed; padding: 0 2.4rem; height: 6.4rem; flex-shrink: 0; width: calc(100% - 24rem); top: 0; left: 0; background-color: #fff; margin-left: 24rem; z-index: 100; }
+      .admin-layout__body { margin-top: 6.4rem; background-color: #f8f9fa; flex-grow: 1; padding: 0 2.4rem 2.4rem; }
+      .header { display: flex; flex-direction: row; gap: 4.8rem; align-items: center; height: 6.4rem; }
+      .header__action-menu { margin-left: auto; }
+    </style>
+    <link rel="stylesheet" href="/mobile.css" />
+  </head>
+  <body>
+    <div class="master">
+      <div class="admin-layout">
+        <div class="admin-layout__side-menu">side menu</div>
+        <div class="admin-layout__container">
+          <div class="admin-layout__header">
+            <div class="header">
+              <a class="iti-app-brand" href="/home" aria-label="ITI home">
+                <img src="https://internal.iti.gov.eg/assets/images/organization/iti-logo.png" alt="" />
+                <span>Information Technology Institute</span>
+              </a>
+              <div class="action-menu">
+                <div class="action-menu__item"></div>
+                <div class="user-menu">M</div>
+              </div>
+            </div>
+          </div>
+          <div class="admin-layout__body">
+            <div class="page-header">
+              <div class="page-header__title-section">
+                <div class="page-header__title-data">
+                  <h1 class="page-header__title">Applicant Progress</h1>
+                </div>
+              </div>
+              <div class="page-header__controls"></div>
+            </div>
+
+            <div class="stepper">
+              <div class="stepper__item"><div class="stepper__item-order">1</div><div class="stepper__item-title">Fill Info</div></div>
+              <div class="stepper__item"><div class="stepper__item-order">2</div><div class="stepper__item-title">Upload Documents</div></div>
+              <div class="stepper__item"><div class="stepper__item-order">3</div><div class="stepper__item-title">Select Preferences</div></div>
+              <div class="stepper__item"><div class="stepper__item-order">4</div><div class="stepper__item-title">Acceptance Phases</div></div>
+              <div class="stepper__item"><div class="stepper__item-order">5</div><div class="stepper__item-title">Final Result</div></div>
+            </div>
+
+            <div class="application-progress">
+              <div class="application-progress__info-section">
+                <div class="applicant-action-batch-details">
+                  <div class="applicant-action-batch-details__title">
+                    <h1 class="applicant-action-batch-details__action-batch-name">Track Exam</h1>
+                    <div class="applicant-action-batch-details__action-batch-right-section">
+                      <cm-badge class="badge">
+                        <div class="surface bg-text--secondary-800">
+                          <div class="surface__content"><div class="badge__text">Special Exam</div></div>
+                        </div>
+                      </cm-badge>
+                    </div>
+                  </div>
+
+                  <div class="applicant-action-batch-details__action-batch-note">
+                    Pending Action Batch Info. Wait for further information about this action.
+                  </div>
+
+                  <div class="applicant-action-batch-details__action-batch-step">
+                    <cm-action-batch-step-item>
+                      <div class="action-batch-step-item">
+                        <div class="action-batch-step-item__header">
+                          <span class="action-batch-step-item__name">Pending Action Batch Info</span>
+                        </div>
+                        <div class="action-batch-step-item__data">
+                          <div class="action-batch-step-item__description">
+                            Wait for further information about this action
+                          </div>
+                        </div>
+                      </div>
+                    </cm-action-batch-step-item>
+                  </div>
+
+                  <div class="applicant-action-batch-details__dress-code">
+                    <cm-dress-code-item>
+                      <div class="dress-code">
+                        <div class="dress-code__info">
+                          <h5 class="dress-code__name">Dress code: Casual</h5>
+                          <h6 class="dress-code__description">
+                            Casual Dress Code Is A Relaxed And Informal Style Of Dressing
+                          </h6>
+                        </div>
+                        <div class="dress-code__dress">
+                          <div class="dress-code__tops">
+                            <h6>Tops:</h6>
+                            <h6 class="dress-code__top">T-Shirts</h6>
+                            <h6 class="dress-code__top">Polo Shirts</h6>
+                            <h6 class="dress-code__top">Blouses</h6>
+                            <h6 class="dress-code__top">Button Down Shirts</h6>
+                            <h6 class="dress-code__top">Sweaters</h6>
+                          </div>
+                          <div class="dress-code__bottoms">
+                            <h6>Bottoms:</h6>
+                            <h6 class="dress-code__bottom">Jeans</h6>
+                            <h6 class="dress-code__bottom">Khakis</h6>
+                            <h6 class="dress-code__bottom">Skirts</h6>
+                            <h6 class="dress-code__bottom">Chinos</h6>
+                            <h6 class="dress-code__bottom">Casual Shorts</h6>
+                          </div>
+                        </div>
+                        <div class="dress-code__image"></div>
+                      </div>
+                    </cm-dress-code-item>
+                  </div>
+
+                  <div class="applicant-action-batch-details__actions">
+                    <div class="applicant-action-batch-action-list">
+                      <div class="tabs tabs--left">
+                        <div class="tabs__header bg-text--light-normal">
+                          <div class="tabs__container">
+                            <div class="applicant-action-batch-action-list__tab active">SW Development Exam</div>
+                          </div>
+                        </div>
+                        <div class="tabs__content bg-text--light-normal">
+                          <div class="applicant-action-batch-action-item">
+                            <div class="applicant-action-batch-action-item__title">
+                              <h1 class="applicant-action-batch-action-item__name">SW Development Exam</h1>
+                              <cm-badge class="badge applicant-action-batch-action-item__status">
+                                <div class="surface bg-text--light-normal">
+                                  <div class="surface__content"><div class="badge__text">Exam</div></div>
+                                </div>
+                              </cm-badge>
+                            </div>
+                            <h4 class="applicant-action-batch-action-item__description">
+                              The SW Development exam measures problem solving and programming fundamentals.
+                            </h4>
+                            <div class="applicant-action-batch-action-item__info">
+                              <div class="applicant-action-batch-action-item__action-step">
+                                <div class="action-step-item">
+                                  <div class="action-step-item__header">
+                                    <span class="action-step-item__name">Pending Action Info</span>
+                                  </div>
+                                  <div class="action-step-item__data">
+                                    <div class="action-step-item__description">
+                                      please wait for further information about this step
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="applicant-action-batch-action-item__action">
+                                <div class="applicant-action-batch-action-item__attandance">
+                                  <div class="applicant-action-batch-action-item__attandance-header">
+                                    <div class="applicant-action-batch-action-item__attandance-title">Attendance</div>
+                                    <div class="applicant-action-batch-action-item__attandance-status bg-text--yellow-100">
+                                      Waiting
+                                    </div>
+                                  </div>
+                                  <div class="applicant-action-batch-action-item__session-body bg-text--dark-normal">
+                                    Session: 12 Nov 2026
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="application-progress__applicant-action-batchs-section">
+                <h2>Progress:</h2>
+                <cm-applicant-action-batch-list>
+                  <div class="applicant-action-batch-list">
+                    <div class="applicant-action-batch-list__action-batch">
+                      <cm-applicant-action-batch-item>
+                        <h3 class="applicant-action-batch-item" style="background-color: #5cb85c; color: #ffffff">
+                          <span>Acceptance Exams</span>
+                        </h3>
+                      </cm-applicant-action-batch-item>
+                    </div>
+                    <div class="applicant-action-batch-list__action-batch">
+                      <cm-applicant-action-batch-item>
+                        <h3 class="applicant-action-batch-item active" style="background-color: #343a40; color: #d9d9d9">
+                          <span>Track Exam</span>
+                        </h3>
+                      </cm-applicant-action-batch-item>
+                    </div>
+                    <div class="applicant-action-batch-list__action-batch">
+                      <cm-applicant-action-batch-item>
+                        <h3 class="applicant-action-batch-item" style="background-color: #f8f9fa; color: #474747">
+                          <span>Acceptance Interview</span>
+                        </h3>
+                      </cm-applicant-action-batch-item>
+                    </div>
+                    <div class="applicant-action-batch-list__action-batch">
+                      <cm-applicant-action-batch-item>
+                        <h3 class="applicant-action-batch-item" style="background-color: #f8f9fa; color: #474747">
+                          <span>Final Interview</span><span>Assigned</span>
+                        </h3>
+                      </cm-applicant-action-batch-item>
+                    </div>
+                  </div>
+                </cm-applicant-action-batch-list>
+              </div>
+            </div>
+          </div>
+          <div class="admin-layout__copyright">Copyright © 2026 All Rights Reserved. (ITI).</div>
+        </div>
+      </div>
+    </div>
+    <script>
+      // Mirrors the app's decorateProgress(): number the phase cards, rename the
+      // heading, and drop the dress-code box when no illustration is uploaded.
+      document.querySelectorAll('cm-applicant-action-batch-item').forEach((host, i) => {
+        const card = host.querySelector('.applicant-action-batch-item');
+        if (!card) return;
+        card.setAttribute('data-iti-step', String(i + 1));
+        if (card.style.backgroundColor) {
+          card.style.setProperty('--iti-phase-color', card.style.backgroundColor);
+        }
+      });
+      const heading = document.querySelector('.application-progress__applicant-action-batchs-section > h2');
+      if (heading) heading.textContent = 'Your phases';
+      document.querySelectorAll('.dress-code__image').forEach((el) => {
+        const bg = getComputedStyle(el).backgroundImage || '';
+        if (!bg || bg === 'none' || /url\(\s*["']?\s*["']?\s*\)/.test(bg)) {
+          el.setAttribute('data-iti-empty', '');
+        }
+      });
+    </script>
+  </body>
+</html>
