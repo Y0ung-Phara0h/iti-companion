@@ -1,6 +1,6 @@
 # ITI Companion
 
-<img src="assets/icon.png" alt="ITI Companion app icon" width="96" align="right" style="border: 2px solid #444; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);" />
+<img src="assets/icon.png" alt="ITI Companion app icon" width="96" align="right" />
 
 **An unofficial Android companion for ITI applicants.** It unblocks the desktop-only
 admission portal, makes it readable on a phone, and adds a native dashboard with your current
@@ -179,13 +179,11 @@ anything:
 
 <p align="center">
   <a href="https://ko-fi.com/F6P229ORJB" target="_blank">
-    <img width="32%" alt="Donate with Ko-fi" src="https://github.com/Y0ung-Phara0h/Y0ung-Phara0h/blob/main/Support_me_1.gif?raw=true"
-     style="box-shadow: 0 4px 12px rgba(0,0,0,0.3);"/>
+    <img width="32%" alt="Donate with Ko-fi" src="https://github.com/Y0ung-Phara0h/Y0ung-Phara0h/blob/main/Support_me_1.gif?raw=true"/>
   </a>
-  &nbsp; &nbsp;
+  &nbsp; &nbsp; &nbsp; &nbsp;
   <a href="https://ipn.eg/S/y0ung-phara0h/instapay/7AGv6e" target="_blank">
-    <img width="20%" alt="Donate with InstaPay" src="assets/instapay_animated.gif?raw=true"
-     style="box-shadow: 0 4px 12px rgba(0,0,0,0.3);"/>
+    <img width="20%" alt="Donate with InstaPay" src="assets/instapay_animated.gif?raw=true"/>
   </a>
 </p>
 
