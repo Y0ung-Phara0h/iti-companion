@@ -179,11 +179,13 @@ anything:
 
 <p align="center">
   <a href="https://ko-fi.com/F6P229ORJB" target="_blank">
-    <img width="32%" alt="Donate with Ko-fi" src="https://github.com/Y0ung-Phara0h/Y0ung-Phara0h/blob/main/Support_me_1.gif?raw=true"/>
+    <img width="32%" alt="Donate with Ko-fi" src="https://github.com/Y0ung-Phara0h/Y0ung-Phara0h/blob/main/Support_me_1.gif?raw=true"
+     style="vertical-align: middle;"/>
   </a>
   &nbsp;&nbsp;
   <a href="https://ipn.eg/S/y0ung-phara0h/instapay/7AGv6e" target="_blank">
-    <img width="32%" alt="Donate with InstaPay" src="assets/instapay_animated.gif?raw=true"/>
+    <img width="28%" alt="Donate with InstaPay" src="assets/instapay_animated.gif?raw=true"
+     style="vertical-align: middle;"/>
   </a>
 </p>
 
