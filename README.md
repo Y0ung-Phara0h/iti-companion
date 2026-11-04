@@ -18,6 +18,12 @@ phase, the next exam, a countdown and local reminders.
 
 ---
 
+> **Note:** For who is asking how to download the App, Please follow the below demo as it shows how to download the APK file from this repository.
+
+![How to download the APK](.\assets\App_Download.gif)
+
+---
+
 ## Why this exists
 
 The ITI applicant portal (`internal.iti.gov.eg`) is built for desktop browsers:
@@ -79,7 +85,7 @@ hides a failed sign-in.
 - One of:
   - **EAS Build** (cloud, no Android SDK needed) — recommended for producing the APK.
   - **Local build** with JDK 17 and Android SDK 37 + build-tools 37 + NDK 27.1.12297006
-    (see *Build locally* below).
+    (see _Build locally_ below).
 - Expo Go for a quick JS-only preview. Local notifications need a development build or a
   release APK.
 
