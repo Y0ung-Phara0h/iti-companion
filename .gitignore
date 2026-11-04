@@ -16,10 +16,13 @@ AGENTS.md
 .kotlin/
 *.orig.*
 *.jks
+*.keystore
 *.p8
 *.p12
 *.key
 *.mobileprovision
+credentials.json
+keystore.properties
 
 # Metro
 .metro-health-check*

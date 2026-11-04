@@ -19,11 +19,62 @@ import {
 } from '@/components/ui';
 import { SupportCard } from '@/components/support-card';
 import { goSettings } from '@/lib/nav';
+import { phaseOutcome, type PhaseOutcome } from '@/lib/phases';
 import { useApp } from '@/lib/store';
-import { colors, spacing } from '@/lib/theme';
+import { colors, radius, spacing } from '@/lib/theme';
 import type { ExamSession } from '@/lib/types';
 
 type PillTone = 'neutral' | 'success' | 'warning' | 'dark' | 'red';
+
+/**
+ * Visual language for the progress rows. A chip replaces the old status text so
+ * the result of every phase is readable at a glance.
+ */
+const OUTCOME_LABEL: Record<PhaseOutcome, string> = {
+  passed: 'PASSED',
+  pending: 'PENDING',
+  next: 'NEXT UP',
+  failed: 'NOT ACCEPTED',
+  waitlist: 'WAITING LIST',
+  upcoming: '',
+};
+
+const OUTCOME_STYLE: Record<
+  Exclude<PhaseOutcome, 'upcoming'>,
+  { background: string; text: string; border?: string }
+> = {
+  passed: { background: colors.green, text: '#FFFFFF' },
+  pending: { background: colors.muted, text: '#FFFFFF' },
+  next: { background: colors.sky, text: '#FFFFFF' },
+  failed: { background: colors.red, text: '#FFFFFF' },
+  // White chip on a white card: a border keeps it visible, black text reads on it.
+  waitlist: { background: '#FFFFFF', text: '#111111', border: colors.line },
+};
+
+/** Green = done (also waitlisted, which means accepted), red = failed, else gray. */
+function dotColor(outcome: PhaseOutcome): string {
+  if (outcome === 'passed' || outcome === 'waitlist') return colors.green;
+  if (outcome === 'failed') return colors.red;
+  return colors.line;
+}
+
+function OutcomeChip({ outcome }: { outcome: PhaseOutcome }) {
+  if (outcome === 'upcoming') return null;
+
+  const tone = OUTCOME_STYLE[outcome];
+  return (
+    <View
+      style={[
+        styles.progressChip,
+        { backgroundColor: tone.background, borderColor: tone.border ?? tone.background },
+      ]}
+    >
+      <Text style={[styles.progressChipText, { color: tone.text }]}>
+        {OUTCOME_LABEL[outcome]}
+      </Text>
+    </View>
+  );
+}
 
 function toneForStatus(status?: string): PillTone {
   if (!status) return 'neutral';
@@ -66,6 +117,15 @@ function formatDateTime(iso?: string): string | null {
     minute: '2-digit',
   });
   return `${day} · ${time}`;
+}
+
+/** Prefer the wording the site used for scraped, human-readable dates. */
+function whenLabel(session: ExamSession): string {
+  const text = session.dateText;
+  if (text && /\s/.test(text) && !/^\d{4}-\d{2}-\d{2}T/.test(text)) {
+    return text;
+  }
+  return formatDateTime(session.startsAt) ?? text ?? 'To be announced';
 }
 
 function Step({ number, children }: { number: string; children: string }) {
@@ -221,11 +281,7 @@ export default function HomeScreen() {
                   <View style={styles.meta}>
                     <Field
                       label="When"
-                      value={
-                        formatDateTime(nextSession.startsAt) ??
-                        nextSession.dateText ??
-                        'To be announced'
-                      }
+                      value={whenLabel(nextSession)}
                     />
                     <Field
                       label="Where"
@@ -245,37 +301,47 @@ export default function HomeScreen() {
               <View style={styles.section}>
                 <SectionTitle>Progress</SectionTitle>
                 <Card style={styles.progressCard}>
-                  {summary.progress.map((item, index) => (
-                    <View
-                      key={item.name}
-                      style={[
-                        styles.progressRow,
-                        index > 0 && styles.progressDivider,
-                      ]}
-                    >
+                  {summary.progress.map((item, index) => {
+                    const outcome = phaseOutcome(
+                      summary.progress,
+                      index,
+                      summary.phase,
+                      summary.phaseStatus,
+                    );
+
+                    return (
                       <View
+                        key={item.name}
                         style={[
-                          styles.progressDot,
-                          {
-                            backgroundColor: item.active
-                              ? colors.red
-                              : colors.line,
-                          },
-                        ]}
-                      />
-                      <Text
-                        style={[
-                          styles.progressName,
-                          item.active && styles.progressNameActive,
+                          styles.progressRow,
+                          index > 0 && styles.progressDivider,
                         ]}
                       >
-                        {item.name}
-                      </Text>
-                      <Text style={styles.progressStatus}>
-                        {item.status ?? (item.active ? 'Assigned' : '—')}
-                      </Text>
-                    </View>
-                  ))}
+                        <View
+                          style={[
+                            styles.progressDot,
+                            { backgroundColor: dotColor(outcome) },
+                          ]}
+                        />
+                        <Text
+                          style={[
+                            styles.progressName,
+                            item.active && styles.progressNameActive,
+                          ]}
+                          numberOfLines={1}
+                        >
+                          {item.name}
+                        </Text>
+                        {outcome === 'upcoming' ? (
+                          <Text style={styles.progressStatus}>
+                            {item.status ?? '—'}
+                          </Text>
+                        ) : (
+                          <OutcomeChip outcome={outcome} />
+                        )}
+                      </View>
+                    );
+                  })}
                 </Card>
               </View>
             ) : null}
@@ -433,6 +499,18 @@ const styles = StyleSheet.create({
   progressName: { flex: 1, fontSize: 14, color: colors.ink },
   progressNameActive: { fontWeight: '700' },
   progressStatus: { fontSize: 12, color: colors.muted },
+  progressChip: {
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    flexShrink: 0,
+  },
+  progressChipText: {
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
   actions: { gap: spacing.sm },
   updated: { fontSize: 11, color: colors.faint, textAlign: 'center' },
   debugCard: { backgroundColor: colors.soft, gap: 4 },

@@ -58,7 +58,8 @@ hides a failed sign-in.
   stylesheet: full-width header, no sidebar, a swipeable phase rail, readable exam and
   interview cards, and a login form that fits the screen.
 - **Native dashboard.** Current phase and status, next exam with a live countdown, location,
-  date and a progress list.
+  date and a progress list with a colored dot and result chip per phase (PASSED, PENDING,
+  NEXT UP, NOT ACCEPTED, WAITING LIST).
 - **Local exam reminders.** 24 hours and 2 hours before each captured session. Scheduled on
   the device, so they work offline.
 - **Offline snapshot.** The phase, exam dates and progress list are cached in Android's
@@ -77,7 +78,8 @@ hides a failed sign-in.
 - Node.js 20+ and npm.
 - One of:
   - **EAS Build** (cloud, no Android SDK needed) — recommended for producing the APK.
-  - **Android Studio** with SDK 36 and build tools for a local build.
+  - **Local build** with JDK 17 and Android SDK 37 + build-tools 37 + NDK 27.1.12297006
+    (see *Build locally* below).
 - Expo Go for a quick JS-only preview. Local notifications need a development build or a
   release APK.
 
@@ -108,6 +110,25 @@ npx eas-cli@latest build -p android --profile preview
 ```
 
 The `preview` profile in `eas.json` produces an installable APK.
+
+### Build locally (Windows)
+
+Needs JDK 17 plus Android SDK 37 / build-tools 37 / NDK 27.1.12297006. The Windows-only
+config plugin `plugins/with-windows-cmake-paths.js` keeps CMake object paths under the
+260-character limit, so a deep checkout path no longer breaks native builds.
+
+```powershell
+$env:JAVA_HOME = "C:\Program Files\Java\jdk-17"
+$env:ANDROID_HOME = "C:\Android"
+cd app
+cmd /c "npx expo prebuild --platform android --clean"
+Set-Content android\local.properties 'sdk.dir=C\:\\Android'
+cd android
+.\gradlew.bat :app:assembleDebug      # app\build\outputs\apk\debug\app-debug.apk
+.\gradlew.bat :app:assembleRelease    # app\build\outputs\apk\release\app-release.apk
+```
+
+Full toolchain table, outputs and fixes: **[../docs/BUILD_AND_MAINTAIN.md](../docs/BUILD_AND_MAINTAIN.md)** §5.3.
 
 ---
 
@@ -142,6 +163,7 @@ A deeper map — every file, every injected CSS section and what is safe to edit
 │   ├── src/lib/              Config, injection, CSS, adapter, storage, notifications, store
 │   ├── assets/               Launcher icon + adaptive foreground
 │   ├── tools/                Visual QA server + DOM mocks + HAR shape helper
+│   ├── plugins/              with-windows-cmake-paths.js (Windows native build fix)
 │   ├── app.json              App identity, permissions, plugins
 │   └── eas.json              APK / AAB build profiles
 │   ├── docs/

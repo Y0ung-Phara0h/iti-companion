@@ -132,6 +132,7 @@ export default function SiteScreen() {
   const {
     settings,
     capture,
+    captureScraped,
     reportDiagnostic,
     reloadToken,
     logoutPending,
@@ -258,6 +259,14 @@ export default function SiteScreen() {
         return;
       }
 
+      // DOM snapshot from the injected script: the fallback that keeps the
+      // dashboard working when the site's API calls are not observable here.
+      // Checked before the API branch because the payload shape is different.
+      if (parsed.type === 'summary') {
+        captureScraped(parsed.data);
+        return;
+      }
+
       if (parsed.type !== 'api') return;
 
       const apiUrl = typeof parsed.url === 'string' ? parsed.url : '';
@@ -272,7 +281,7 @@ export default function SiteScreen() {
         body: parsed.body,
       });
     },
-    [capture, reportDiagnostic],
+    [capture, captureScraped, reportDiagnostic],
   );
 
   const onShouldStartLoadWithRequest = useCallback(

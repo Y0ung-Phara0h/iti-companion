@@ -249,6 +249,140 @@ export function buildInjectedScript(desktopMode: boolean): string {
     form.parentNode.insertBefore(hint, form);
   }
 
+  /* -------------------------------------------------------------- scraping */
+
+  // Native receives a compact snapshot of the progress page. This is the
+  // fallback for installs where the site's XHR/fetch calls are not visible to
+  // this WebView (different origin or a service worker), which left the
+  // dashboard empty. It reads only, never modifies, the page.
+  var lastSummaryJSON = window.__itiSummaryJSON || '';
+
+  function clean(value) {
+    return String(value == null ? '' : value).replace(/\\s+/g, ' ').trim();
+  }
+
+  function readText(root, selector) {
+    if (!root) return '';
+    var node = root.querySelector(selector);
+    return node ? clean(node.textContent) : '';
+  }
+
+  function scrapeSummary() {
+    var details = document.querySelector('.applicant-action-batch-details');
+    var data = {};
+    var found = false;
+
+    var phase = readText(details, '.applicant-action-batch-details__action-batch-name');
+    if (phase) {
+      data.phase = phase;
+      found = true;
+    }
+
+    var note = readText(details, '.applicant-action-batch-details__action-batch-note');
+    if (note) {
+      data.phaseNote = note.slice(0, 400);
+      found = true;
+    }
+
+    var badge = readText(details, '.applicant-action-batch-details__title .badge__text');
+    if (/assigned|wait|progress|pending|pass|accept|reject|attend/i.test(badge)) {
+      data.phaseStatus = badge;
+    }
+
+    // The rail lists every phase; the active card is the applicant's current
+    // one. Its second span, when present, is the status ("Assigned", …).
+    var progress = [];
+    var cards = document.querySelectorAll('.applicant-action-batch-item');
+    for (var i = 0; i < cards.length; i += 1) {
+      var spans = cards[i].querySelectorAll('span');
+      var name = spans.length ? clean(spans[0].textContent) : clean(cards[i].textContent);
+      if (!name) continue;
+
+      var status = spans.length > 1 ? clean(spans[1].textContent) : '';
+      var active = false;
+      try {
+        active = cards[i].classList.contains('active');
+      } catch (e) {}
+
+      var entry = { name: name, active: active };
+      if (status) entry.status = status;
+      progress.push(entry);
+
+      if (active) {
+        if (!data.phase) data.phase = name;
+        if (!data.phaseStatus && status) data.phaseStatus = status;
+      }
+    }
+    if (progress.length) {
+      data.progress = progress;
+      found = true;
+    }
+
+    // Action items under the selected phase hold the exam/interview details.
+    var sessions = [];
+    var items = document.querySelectorAll('.applicant-action-batch-action-item');
+    for (var j = 0; j < items.length; j += 1) {
+      var item = items[j];
+      var title = readText(item, '.applicant-action-batch-action-item__name');
+      if (!title) {
+        var tab = document.querySelector('.applicant-action-batch-action-list__tab.active');
+        title = tab ? clean(tab.textContent) : '';
+      }
+      if (!title) continue;
+
+      var dateText =
+        readText(item, '.applicant-action-batch-action-item__session-body') ||
+        readText(item, '.applicant-action-batch-action-item__session-time');
+      dateText = dateText.replace(/^(session|date|time|exam date)\\s*[:\\-]\\s*/i, '');
+
+      var location = readText(item, '.applicant-action-batch-action-item__session-location');
+      var sessionStatus =
+        readText(item, '.applicant-action-batch-action-item__attandance-status') ||
+        readText(item, '.applicant-action-batch-action-item__status .badge__text') ||
+        readText(item, '.applicant-action-batch-action-item__status');
+
+      var session = { title: title };
+      if (dateText) session.dateText = dateText.slice(0, 120);
+      if (location) session.location = location.slice(0, 160);
+      if (sessionStatus) session.status = sessionStatus.slice(0, 60);
+      sessions.push(session);
+    }
+    if (sessions.length) {
+      data.sessions = sessions;
+      found = true;
+    }
+
+    var nameNode = document.querySelector('.user-menu__name, .user-name, .applicant-name');
+    if (nameNode) {
+      var applicant = clean(nameNode.textContent);
+      if (applicant) {
+        data.applicantName = applicant;
+        found = true;
+      }
+    }
+
+    return found ? data : null;
+  }
+
+  function publishSummary() {
+    try {
+      if (!window.ReactNativeWebView || !window.ReactNativeWebView.postMessage) return;
+
+      var data = scrapeSummary();
+      if (!data) return;
+
+      var json = JSON.stringify(data);
+      if (json === lastSummaryJSON) return;
+      lastSummaryJSON = json;
+      window.__itiSummaryJSON = json;
+
+      window.ReactNativeWebView.postMessage(JSON.stringify({
+        type: 'summary',
+        data: data
+      }));
+    } catch (e) {}
+  }
+
   function decorate() {
     markDocument();
     hideBlocker();
@@ -256,6 +390,7 @@ export function buildInjectedScript(desktopMode: boolean): string {
     decorateProgress();
     decorateLogin();
     watchLogin();
+    publishSummary();
   }
 
   var scheduled = false;

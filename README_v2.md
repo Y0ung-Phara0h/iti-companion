@@ -11,7 +11,8 @@ and screenshots live in the repository root:
 
 - Node.js 20+ and npm
 - Android 8+ device with Expo Go (UI preview) or an emulator
-- EAS account for cloud APK builds; JDK 17 + Android SDK 36 for local builds
+- EAS account for cloud APK builds; JDK 17 + Android SDK 37 (build-tools 37, NDK
+  27.1.12297006) for local builds
 
 ## Run
 

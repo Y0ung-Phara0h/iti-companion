@@ -8,7 +8,7 @@ import React, {
   useState,
   type ReactNode,
 } from 'react';
-import { mergeSummary } from './adapter';
+import { mergeScraped, mergeSummary } from './adapter';
 import { cancelExamReminders, syncExamReminders } from './notifications';
 import {
   clearStoredData,
@@ -44,6 +44,11 @@ type AppContextValue = {
    */
   logoutPending: boolean;
   capture: (payload: CapturedPayload) => void;
+  /**
+   * DOM snapshot from the injected script. Used when the site's API calls are
+   * not observable from the WebView.
+   */
+  captureScraped: (raw: unknown) => void;
   reportDiagnostic: (next: WebViewDiagnostic) => void;
   updateSettings: (patch: Partial<Settings>) => void;
   reloadSite: () => void;
@@ -130,6 +135,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setSummary(previous => mergeSummary(previous, payload));
   }, []);
 
+  const captureScraped = useCallback((raw: unknown) => {
+    // `null` means the page had nothing useful; keep the cached summary.
+    setSummary(previous => mergeScraped(previous, raw) ?? previous);
+  }, []);
+
   const reportDiagnostic = useCallback((next: WebViewDiagnostic) => {
     setDiagnostic(next);
   }, []);
@@ -180,6 +190,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       reloadToken,
       logoutPending,
       capture,
+      captureScraped,
       reportDiagnostic,
       updateSettings,
       reloadSite,
@@ -191,6 +202,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       acknowledgeLogout,
       capturedCount,
       capture,
+      captureScraped,
       clearCachedData,
       diagnostic,
       hydrated,

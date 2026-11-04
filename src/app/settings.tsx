@@ -73,7 +73,7 @@ export default function SettingsScreen() {
     signOut,
   } = useApp();
 
-  const version = Constants.expoConfig?.version ?? '0.1.0';
+  const version = Constants.expoConfig?.version ?? '0.2.0';
 
   const onToggleNotifications = async (next: boolean) => {
     if (!next) {

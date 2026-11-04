@@ -1,6 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import { AndroidImportance } from 'expo-notifications';
 import { Platform } from 'react-native';
+import { parseDateText } from './dates';
 import type { ExamSession } from './types';
 
 const CHANNEL_ID = 'exams';
@@ -48,6 +49,20 @@ export async function cancelExamReminders(): Promise<void> {
   }
 }
 
+/**
+ * Reminder time for a session. DOM captures often carry only the visible text
+ * ("12 Nov 2026"), so fall back to that instead of dropping the reminder.
+ */
+function startTime(session: ExamSession): number {
+  if (session.startsAt) {
+    const explicit = new Date(session.startsAt).getTime();
+    if (!Number.isNaN(explicit)) return explicit;
+  }
+
+  const parsed = parseDateText(session.dateText);
+  return parsed ? new Date(parsed).getTime() : Number.NaN;
+}
+
 export async function syncExamReminders(
   sessions: ExamSession[],
 ): Promise<number> {
@@ -60,22 +75,14 @@ export async function syncExamReminders(
 
     const now = Date.now();
     const upcoming = sessions
-      .filter(session => {
-        if (!session.startsAt) return false;
-        return new Date(session.startsAt).getTime() > now;
-      })
-      .sort(
-        (a, b) =>
-          new Date(a.startsAt as string).getTime() -
-          new Date(b.startsAt as string).getTime(),
-      )
+      .map(session => ({ session, at: startTime(session) }))
+      .filter(entry => Number.isFinite(entry.at) && entry.at > now)
+      .sort((a, b) => a.at - b.at)
       .slice(0, 6);
 
     let scheduled = 0;
 
-    for (const session of upcoming) {
-      const startsAt = new Date(session.startsAt as string).getTime();
-
+    for (const { session, at: startsAt } of upcoming) {
       for (const reminder of REMINDERS) {
         const fireAt = startsAt - reminder.offsetMs;
         if (fireAt <= now + 60_000) continue;

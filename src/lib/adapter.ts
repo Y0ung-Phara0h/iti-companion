@@ -1,4 +1,11 @@
-import type { CapturedPayload, ExamSession, ProgressItem, Summary } from './types';
+import type {
+  CapturedPayload,
+  ExamSession,
+  ProgressItem,
+  ScrapedSummary,
+  Summary,
+} from './types';
+import { parseDateText } from './dates';
 
 const DATE_KEYS = [
   'sessionDate',
@@ -264,6 +271,151 @@ export function mergeSummary(
   if (/(ApplicantActionBatch|Examinations|Interview)/i.test(url)) {
     const sessions = collectSessions(body, summary.phase);
     if (sessions.length) summary.sessions = sessions;
+  }
+
+  summary.updatedAt = Date.now();
+  return summary;
+}
+
+/* ------------------------------------------------------------- DOM scrape */
+
+function scrapedText(value: unknown): string | undefined {
+  if (typeof value !== 'string') return undefined;
+  const trimmed = value.replace(/\s+/g, ' ').trim();
+  return trimmed.length ? trimmed : undefined;
+}
+
+function scrapedProgress(value: unknown): ProgressItem[] {
+  if (!Array.isArray(value)) return [];
+  const items: ProgressItem[] = [];
+
+  for (const entry of value) {
+    if (!isRecord(entry)) continue;
+    const name = scrapedText(entry.name);
+    if (!name) continue;
+    if (items.some(item => item.name === name)) continue;
+
+    items.push({
+      name,
+      status: scrapedText(entry.status),
+      active: entry.active === true,
+    });
+  }
+
+  return items.slice(0, 12);
+}
+
+/**
+ * The injected script is untrusted input: validate and normalise it here so a
+ * malformed or hostile message can never reach the renderer as a Summary.
+ */
+export function normalizeScraped(raw: unknown): ScrapedSummary {
+  if (!isRecord(raw)) return {};
+
+  const scraped: ScrapedSummary = {};
+  const href = scrapedText(raw.href);
+  const applicantName = scrapedText(raw.applicantName);
+  const phase = scrapedText(raw.phase);
+  const phaseStatus = scrapedText(raw.phaseStatus);
+  const phaseNote = scrapedText(raw.phaseNote);
+  const progress = scrapedProgress(raw.progress);
+
+  if (href) scraped.href = href;
+  if (applicantName) scraped.applicantName = applicantName;
+  if (phase) scraped.phase = phase;
+  if (phaseStatus) scraped.phaseStatus = phaseStatus;
+  if (phaseNote) scraped.phaseNote = phaseNote.slice(0, 400);
+  if (progress.length) scraped.progress = progress;
+
+  if (Array.isArray(raw.sessions)) {
+    const sessions: NonNullable<ScrapedSummary['sessions']> = [];
+
+    for (const entry of raw.sessions) {
+      if (!isRecord(entry)) continue;
+      const title = scrapedText(entry.title);
+      if (!title) continue;
+      if (sessions.some(session => session.title === title)) continue;
+
+      sessions.push({
+        title,
+        dateText: scrapedText(entry.dateText)?.slice(0, 120),
+        location: scrapedText(entry.location)?.slice(0, 160),
+        status: scrapedText(entry.status)?.slice(0, 60),
+      });
+    }
+
+    if (sessions.length) scraped.sessions = sessions.slice(0, 20);
+  }
+
+  return scraped;
+}
+
+export function hasScrapedData(scraped: ScrapedSummary): boolean {
+  return Boolean(
+    scraped.phase ||
+      scraped.phaseNote ||
+      scraped.applicantName ||
+      scraped.sessions?.length ||
+      scraped.progress?.length,
+  );
+}
+
+function sessionsFromScraped(scraped: ScrapedSummary): ExamSession[] {
+  return (scraped.sessions ?? []).map((session, index) => {
+    const startsAt = parseDateText(session.dateText);
+
+    return {
+      id: `${session.title}|${session.dateText ?? index}`,
+      title: session.title,
+      startsAt,
+      dateText: session.dateText,
+      location: session.location,
+      status: session.status,
+    };
+  });
+}
+
+/**
+ * Merges a DOM snapshot into the cached summary. Returns `null` when the page
+ * contained nothing useful, so the caller can keep the previous value.
+ */
+export function mergeScraped(
+  previous: Summary | null,
+  raw: unknown,
+): Summary | null {
+  const scraped = normalizeScraped(raw);
+  if (!hasScrapedData(scraped)) return null;
+
+  const summary: Summary = previous
+    ? {
+        ...previous,
+        sessions: [...previous.sessions],
+        progress: [...previous.progress],
+      }
+    : { sessions: [], progress: [], updatedAt: 0 };
+
+  if (scraped.applicantName) summary.applicantName = scraped.applicantName;
+
+  const phaseChanged = Boolean(scraped.phase && scraped.phase !== previous?.phase);
+
+  if (scraped.phase) summary.phase = scraped.phase;
+  if (scraped.phaseStatus) summary.phaseStatus = scraped.phaseStatus;
+  else if (phaseChanged) summary.phaseStatus = undefined;
+  if (scraped.phaseNote) summary.phaseNote = scraped.phaseNote;
+  else if (phaseChanged) summary.phaseNote = undefined;
+  if (scraped.progress?.length) summary.progress = scraped.progress;
+
+  const active = scraped.progress?.find(item => item.active);
+  if (active && !scraped.phase) summary.phase = active.name;
+  if (active?.status && !scraped.phaseStatus) summary.phaseStatus = active.status;
+
+  // The visible progress page is authoritative for sessions: it shows the
+  // actions of the phase the applicant is actually in.
+  if (scraped.sessions?.length) {
+    summary.sessions = sessionsFromScraped(scraped);
+  } else if (phaseChanged) {
+    // A different phase with no dated action yet: old sessions would lie.
+    summary.sessions = [];
   }
 
   summary.updatedAt = Date.now();

@@ -14,6 +14,7 @@ export const colors = {
   green: '#157347',
   greenSoft: '#E7F5EE',
   redSoft: '#FDECEE',
+  sky: '#0EA5E9',
 } as const;
 
 export const spacing = {
