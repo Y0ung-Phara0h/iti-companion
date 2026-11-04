@@ -20,7 +20,7 @@ phase, the next exam, a countdown and local reminders.
 
 > **Note:** For who is asking how to download the App, Please follow the below demo as it shows how to download the APK file from this repository.
 
-<img src="assets\App_Download.gif" width="90%" alt="App Demo">
+<img src="assets\App_Download.gif" alt="App Demo">
 
 ---
 
