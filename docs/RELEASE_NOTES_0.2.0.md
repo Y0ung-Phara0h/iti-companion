@@ -9,12 +9,12 @@ Information Technology Institute.
 
 Every phase in the Progress card now shows its result as a colored chip:
 
-| Chip | Meaning |
-| --- | --- |
-| **PASSED** (green) | Phase completed successfully |
-| **PENDING** (gray) | Current phase, result not announced yet |
-| **NEXT UP** (sky blue) | The phase that comes after the current one |
-| **NOT ACCEPTED** (red) | Phase failed or the applicant was rejected |
+| Chip                     | Meaning                                                              |
+| ------------------------ | -------------------------------------------------------------------- |
+| **PASSED** (green)       | Phase completed successfully                                         |
+| **PENDING** (gray)       | Current phase, result not announced yet                              |
+| **NEXT UP** (sky blue)   | The phase that comes after the current one                           |
+| **NOT ACCEPTED** (red)   | Phase failed or the applicant was rejected                           |
 | **WAITING LIST** (white) | Accepted, but placed on the waiting list (typically the final phase) |
 
 The dot next to each row follows the same logic: green for completed phases
@@ -73,7 +73,7 @@ first — Android refuses to upgrade across keys.
 ## Verification
 
 ```text
-SHA-256: <paste the output of Get-FileHash here>
+SHA-256: C3D3C0610599A8AE6DEEE30A2BDD2BEF42334481B8CDCA0A150D227694F0D939
 ```
 
 Full changelog: [`CHANGELOG.md`](../CHANGELOG.md)
